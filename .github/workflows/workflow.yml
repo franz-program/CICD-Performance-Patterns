@@ -1,0 +1,72 @@
+name: Conditional Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  check-conditions:
+    runs-on: ubuntu-latest
+    outputs:
+      skip-pipeline: ${{ steps.set.outputs.skip }}
+    steps:
+      - name: Check commit message for --no-pipeline
+        id: set
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"--no-pipeline"* ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+
+  build:
+    needs: check-conditions
+    if: needs.check-conditions.outputs.skip-pipeline == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for app/src changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            src:
+              - 'app/src/**/*'
+
+      - name: Build project
+        if: steps.changes.outputs.src == 'true'
+        run: echo "Building project..."
+
+  test:
+    needs: check-conditions
+    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/fake-branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for app/src changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            src:
+              - 'app/src/**/*'
+
+      - name: Run tests
+        if: steps.changes.outputs.src == 'true'
+        run: echo "Running tests..."
+
+  deploy:
+    needs: [check-conditions, test]
+    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/fake-branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy
+        run: echo "Deploying..."
