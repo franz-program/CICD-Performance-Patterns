@@ -10,10 +10,14 @@ jobs:
   check-conditions:
     runs-on: ubuntu-latest
     outputs:
-      skip-pipeline: ${{ steps.set.outputs.skip }}
+      skip-pipeline: ${{ steps.check.outputs.skip }}
+      src-changed: ${{ steps.filter.outputs.src }}
     steps:
-      - name: Check commit message for --no-pipeline
-        id: set
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for --no-pipeline in commit message
+        id: check
         run: |
           if [[ "${{ github.event.head_commit.message }}" == *"--no-pipeline"* ]]; then
             echo "skip=true" >> $GITHUB_OUTPUT
@@ -21,54 +25,36 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-  build:
-    needs: check-conditions
-    if: needs.check-conditions.outputs.skip-pipeline == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check for app/src changes
-        id: changes
+      - name: Detect file changes
+        id: filter
         uses: dorny/paths-filter@v3
         with:
           filters: |
             src:
               - 'app/src/**/*'
 
-      - name: Build project
-        if: steps.changes.outputs.src == 'true'
-        run: echo "Building project..."
+  build:
+    needs: check-conditions
+    if: needs.check-conditions.outputs.skip-pipeline == 'false' && needs.check-conditions.outputs.src-changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Building project..."
 
   test:
     needs: check-conditions
-    if: needs.check-conditions.outputs.skip-pipeline == 'false'
+    if: needs.check-conditions.outputs.skip-pipeline == 'false' && (
+          needs.check-conditions.outputs.src-changed == 'true' || github.ref == 'refs/heads/conditional-triggering-main'
+        )
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check file changes
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            src:
-              - 'app/src/**/*'
-
-      - name: Run tests
-        # Logical OR using composite if condition
-        if: steps.changes.outputs.src == 'true' || github.ref == 'refs/heads/fake-branch'
-        run: echo "Running tests..."
+      - uses: actions/checkout@v4
+      - run: echo "Running tests..."
 
   deploy:
     needs: [check-conditions, test]
-    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/fake-branch'
+    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/conditional-triggering-main'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Deploy
-        run: echo "Deploying..."
+      - uses: actions/checkout@v4
+      - run: echo "Deploying..."
