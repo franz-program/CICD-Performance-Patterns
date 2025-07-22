@@ -7,7 +7,7 @@ Continuous Integration and Continuous Deployment (CI/CD) pipelines constitute an
 
 ### Repository
 
-In this repository, the gitlab-related code snippets from the paper are tested. 
+In this repository, the GitHub-related code snippets from the paper are tested. 
 Each pattern is tested on its own branch.
 
 ### Links
