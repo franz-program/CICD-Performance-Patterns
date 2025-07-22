@@ -59,12 +59,12 @@ jobs:
 
       - name: Run tests
         # Logical OR using composite if condition
-        if: steps.changes.outputs.src == 'true' || github.ref == 'refs/heads/conditional-triggering-main'
+        if: steps.changes.outputs.src == 'true' || github.ref == 'refs/heads/fake-branch'
         run: echo "Running tests..."
 
   deploy:
     needs: [check-conditions, test]
-    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/conditional-triggering-main'
+    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/fake-branch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
