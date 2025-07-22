@@ -19,6 +19,7 @@ jobs:
             echo "skip=true" >> $GITHUB_OUTPUT
           else
             echo "skip=false" >> $GITHUB_OUTPUT
+          fi
 
   build:
     needs: check-conditions
@@ -42,13 +43,13 @@ jobs:
 
   test:
     needs: check-conditions
-    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/fake-branch'
+    if: needs.check-conditions.outputs.skip-pipeline == 'false'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check for app/src changes
+      - name: Check file changes
         id: changes
         uses: dorny/paths-filter@v3
         with:
@@ -57,12 +58,13 @@ jobs:
               - 'app/src/**/*'
 
       - name: Run tests
-        if: steps.changes.outputs.src == 'true'
+        # Logical OR using composite if condition
+        if: steps.changes.outputs.src == 'true' || github.ref == 'refs/heads/conditional-triggering-main'
         run: echo "Running tests..."
 
   deploy:
     needs: [check-conditions, test]
-    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/fake-branch'
+    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/conditional-triggering-main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
