@@ -5,19 +5,19 @@ on:
   pull_request:
 
 jobs:
-#  check-skip:
-#    runs-on: ubuntu-latest
-#    if: "!contains(github.event.head_commit.message, '--no-test')"
-#    outputs:
-#      run-tests: ${{ steps.set-output.outputs.run }}
-#    steps:
-#      - name: Check commit message
-#        id: set-output
-#        run: echo "run=true" >> $GITHUB_OUTPUT
+  check-skip:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '--no-test')"
+    outputs:
+      run-tests: ${{ steps.set-output.outputs.run }}
+    steps:
+      - name: Check commit message
+        id: set-output
+        run: echo "run=true" >> $GITHUB_OUTPUT
 
   first-test:
-#    needs: check-skip
-#    if: needs.check-skip.outputs.run-tests == 'true'
+    needs: check-skip
+    if: needs.check-skip.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     container:
       image: gradle:8.12.0-jdk21-alpine
@@ -32,8 +32,8 @@ jobs:
         run: ./gradlew test --tests "test.Test1"
 
   second-test:
-#    needs: check-skip
-#    if: needs.check-skip.outputs.run-tests == 'true'
+    needs: check-skip
+    if: needs.check-skip.outputs.run-tests == 'true'
     runs-on: ubuntu-latest
     container:
       image: gradle:8.12.0-jdk21-alpine
