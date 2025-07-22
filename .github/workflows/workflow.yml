@@ -2,8 +2,6 @@ name: Parallel Gradle Tests
 
 on:
   push:
-    branches:
-      - main
   pull_request:
 
 jobs:
