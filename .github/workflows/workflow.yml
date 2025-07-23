@@ -25,9 +25,9 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-          - name: Detect changes in app/src
-          id: diff
-          run: |
+      - name: Detect changes in app/src
+        id: diff
+        run: |
             git fetch
             changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
         
