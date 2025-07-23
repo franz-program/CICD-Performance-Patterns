@@ -1,0 +1,51 @@
+name: Bazel Tests with Cache (Simplified)
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  check-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Check for --no-test in commit message
+        id: check
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"--no-test"* ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+  bazel-test:
+    needs: check-commit
+    if: needs.check-commit.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+    container:
+      image: gcr.io/bazel-public/bazel:7.4.0
+      options: --entrypoint=
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Restore Bazel cache
+        uses: actions/cache@v4
+        with:
+          path: app/testcache
+          key: bazel-tutorial-cache
+
+      - name: Build Bazel project
+        run: bazel build //:BazelProject --java_language_version=8 --disk_cache=testcache
+
+      - name: Run BazelProjectTest1
+        run: bazel test //:BazelProjectTest1 --java_language_version=8 --disk_cache=testcache
+
+      - name: Run BazelProjectTest2
+        run: bazel test //:BazelProjectTest2 --java_language_version=8 --disk_cache=testcache

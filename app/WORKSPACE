@@ -1,0 +1,21 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Add rules_jvm_external
+http_archive(
+    name = "rules_jvm_external",
+    urls = ["https://github.com/bazelbuild/rules_jvm_external/archive/refs/tags/5.2.zip"],
+    strip_prefix = "rules_jvm_external-5.2",
+)
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+
+# Define Maven dependencies
+maven_install(
+    name = "maven",
+    artifacts = [
+        "junit:junit:4.13.2",  # JUnit
+    ],
+    repositories = [
+        "https://repo.maven.apache.org/maven2",
+    ],
+)
