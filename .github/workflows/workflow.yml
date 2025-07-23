@@ -34,6 +34,11 @@ jobs:
         with:
           path: app/testcache
           key: bazel-tutorial-cache
+      
+      - name: Prepare Bazel cache folder
+        run: |
+            mkdir -p bazel-cache
+            chmod -R 777 bazel-cache
 
       - name: Bazel build
         run: |
