@@ -25,20 +25,21 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Detect changes in app/src
-        id: diff
-        run: |
-          git fetch origin ${{ github.event.before }}
-          changed_files=$(git diff --name-only origin/${{ github.event.before }} HEAD)
-
-          echo "Changed files:"
-          echo "$changed_files"
-
-          if echo "$changed_files" | grep -q '^app/src/'; then
-            echo "src_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "src_changed=false" >> $GITHUB_OUTPUT
-          fi
+          - name: Detect changes in app/src
+          id: diff
+          run: |
+            git fetch
+            changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+        
+            echo "Changed files:"
+            echo "$changed_files"
+        
+            if echo "$changed_files" | grep -q '^app/src/'; then
+              echo "src_changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "src_changed=false" >> $GITHUB_OUTPUT
+            fi
+        
 
   build:
     needs: precheck
