@@ -35,12 +35,26 @@ jobs:
           path: app/testcache
           key: bazel-tutorial-cache
 
-      - name: Run Bazel build and tests inside Docker
+      - name: Bazel build
         run: |
             docker run --rm \
               -v "${{ github.workspace }}/app":/app \
               -w /app \
               gcr.io/bazel-public/bazel:7.4.0 \
-              /bin/bash -c "bazel build //:BazelProject --java_language_version=8 --disk_cache=testcache &&
-                            bazel test //:BazelProjectTest1 --java_language_version=8 --disk_cache=testcache &&
-                            bazel test //:BazelProjectTest2 --java_language_version=8 --disk_cache=testcache"
+              bazel build //:BazelProject --java_language_version=8 --disk_cache=testcache
+        
+      - name: Bazel test 1
+        run: |
+            docker run --rm \
+              -v "${{ github.workspace }}/app":/app \
+              -w /app \
+              gcr.io/bazel-public/bazel:7.4.0 \
+              bazel test //:BazelProjectTest1 --java_language_version=8 --disk_cache=testcache
+        
+      - name: Bazel test 2
+        run: |
+            docker run --rm \
+              -v "${{ github.workspace }}/app":/app \
+              -w /app \
+              gcr.io/bazel-public/bazel:7.4.0 \
+              bazel test //:BazelProjectTest2 --java_language_version=8 --disk_cache=testcache
