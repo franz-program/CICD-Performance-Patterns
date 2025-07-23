@@ -41,6 +41,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: echo "Building project..."
 
+      
   test:
     needs: check-conditions
     if: needs.check-conditions.outputs.skip-pipeline == 'false' && (
