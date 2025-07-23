@@ -37,7 +37,6 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
           module-root: app
-          bazelisk-version: 1.23.0
 
       - name: Run Bazel build and tests
         working-directory: app
