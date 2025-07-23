@@ -37,7 +37,7 @@ jobs:
               - 'app/src/**/*'
 
       - name: Build project
-        if: steps.changes.outputs.src == 'true'
+        if: 'false' #steps.changes.outputs.src == 'true'
         run: echo "Building project..."
 
   test:
