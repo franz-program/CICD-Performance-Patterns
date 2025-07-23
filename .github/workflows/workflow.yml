@@ -61,7 +61,7 @@ jobs:
   test:
     needs: precheck
     if: needs.precheck.outputs.skip-pipeline == 'false' && (
-          needs.precheck.outputs.src-changed == 'true' || github.ref == 'refs/heads/fake-branch'
+          needs.precheck.outputs.src-changed == 'true' || github.ref == 'refs/heads/conditional-triggering'
         )
     runs-on: ubuntu-latest
     steps:
@@ -69,7 +69,7 @@ jobs:
 
   deploy:
     needs: [precheck, test]
-    if: needs.precheck.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/fake-branch'
+    if: needs.precheck.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/conditional-triggering'
     runs-on: ubuntu-latest
     steps:
       - run: echo "Deploying..."
