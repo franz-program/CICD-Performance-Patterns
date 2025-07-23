@@ -25,15 +25,25 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Clone GuillaumeFalourd/poc-github-actions repository
+        uses: GuillaumeFalourd/clone-github-repo-action@v2.3
+        with:
+          repository: 'CICD-Performance-Patterns'
+          owner: 'franz-program'
+          branch: ${{ github.ref_name }}
+          depth: 2
+    
       - name: Detect changes in app/src
+        working-directory: ./poc-github-actions
         id: diff
         run: |
-            git fetch
+            echo "Comparing commits:"
+            echo "Before: ${{ github.event.before }}"
+            echo "After:  ${{ github.sha }}"
+    
             changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-        
-            echo "Changed files:"
             echo "$changed_files"
-        
+    
             if echo "$changed_files" | grep -q '^app/src/'; then
               echo "src_changed=true" >> $GITHUB_OUTPUT
             else
