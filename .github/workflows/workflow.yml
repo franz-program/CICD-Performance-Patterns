@@ -1,4 +1,4 @@
-name: Conditional Pipeline
+name: Conditional Pipeline (Manual Git Diff)
 
 on:
   push:
@@ -7,12 +7,16 @@ on:
   pull_request:
 
 jobs:
-  skip-check:
+  precheck:
     runs-on: ubuntu-latest
     outputs:
-      skip: ${{ steps.check.outputs.skip }}
+      skip-pipeline: ${{ steps.check.outputs.skip }}
+      src-changed: ${{ steps.diff.outputs.src_changed }}
     steps:
-      - name: Check commit message for --no-pipeline
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Check for --no-pipeline in commit message
         id: check
         run: |
           if [[ "${{ github.event.head_commit.message }}" == *"--no-pipeline"* ]]; then
@@ -21,48 +25,40 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Detect changes in app/src
+        id: diff
+        run: |
+          git fetch origin ${{ github.event.before }}
+          changed_files=$(git diff --name-only origin/${{ github.event.before }} HEAD)
+
+          echo "Changed files:"
+          echo "$changed_files"
+
+          if echo "$changed_files" | grep -q '^app/src/'; then
+            echo "src_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "src_changed=false" >> $GITHUB_OUTPUT
+          fi
+
   build:
-    needs: skip-check
-    if: needs.skip-check.outputs.skip == 'false'
+    needs: precheck
+    if: needs.precheck.outputs.skip-pipeline == 'false' && needs.precheck.outputs.src-changed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Detect file changes
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            src:
-              - 'app/src/**/*'
-
-      - name: Build project
-        if: 'false' #steps.changes.outputs.src == 'true'
-        run: echo "Building project..."
+      - run: echo "Building project..."
 
   test:
-    needs: skip-check
-    if: needs.skip-check.outputs.skip == 'false'
+    needs: precheck
+    if: needs.precheck.outputs.skip-pipeline == 'false' && (
+          needs.precheck.outputs.src-changed == 'true' || github.ref == 'refs/heads/fake-branch'
+        )
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Detect file changes
-        id: changes
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            src:
-              - 'app/src/**/*'
-
-      - name: Run tests
-        # OR condition: changes OR correct branch
-        if: steps.changes.outputs.src == 'true' || github.ref == 'refs/heads/fake-branch'
-        run: echo "Running tests..."
+      - run: echo "Running tests..."
 
   deploy:
-    needs: [skip-check, test]
-    if: needs.skip-check.outputs.skip == 'false' && github.ref == 'refs/heads/fake-branch'
+    needs: [precheck, test]
+    if: needs.precheck.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/fake-branch'
     runs-on: ubuntu-latest
     steps:
       - run: echo "Deploying..."
