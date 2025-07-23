@@ -21,6 +21,7 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
+          
   bazel-test:
     needs: check-commit
     if: needs.check-commit.outputs.skip == 'false'
