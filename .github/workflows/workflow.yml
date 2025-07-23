@@ -1,4 +1,4 @@
-name: Bazel Tests with Cache (Simplified)
+name: Bazel Tests in Docker (with Cache)
 
 on:
   push:
@@ -25,12 +25,6 @@ jobs:
     needs: check-commit
     if: needs.check-commit.outputs.skip == 'false'
     runs-on: ubuntu-latest
-    container:
-      image: gcr.io/bazel-public/bazel:7.4.0
-      options: --entrypoint=
-    defaults:
-      run:
-        working-directory: app
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,11 +35,14 @@ jobs:
           path: app/testcache
           key: bazel-tutorial-cache
 
-      - name: Build Bazel project
-        run: bazel build //:BazelProject --java_language_version=8 --disk_cache=testcache
-
-      - name: Run BazelProjectTest1
-        run: bazel test //:BazelProjectTest1 --java_language_version=8 --disk_cache=testcache
-
-      - name: Run BazelProjectTest2
-        run: bazel test //:BazelProjectTest2 --java_language_version=8 --disk_cache=testcache
+      - name: Run Bazel tests inside Docker
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}/app":/app \
+            -w /app \
+            gcr.io/bazel-public/bazel:7.4.0 \
+            sh -c "
+              bazel build //:BazelProject --java_language_version=8 --disk_cache=testcache &&
+              bazel test //:BazelProjectTest1 --java_language_version=8 --disk_cache=testcache &&
+              bazel test //:BazelProjectTest2 --java_language_version=8 --disk_cache=testcache
+            "
