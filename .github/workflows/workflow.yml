@@ -1,4 +1,4 @@
-name: Bazel Tests in Docker (with Cache)
+name: Bazel Test
 
 on:
   push:
@@ -25,41 +25,22 @@ jobs:
     needs: check-commit
     if: needs.check-commit.outputs.skip == 'false'
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Restore Bazel cache
-        uses: actions/cache@v4
+      - name: Set up Bazel with caching
+        uses: bazel-contrib/setup-bazel@0.15.0
         with:
-          path: app/testcache
-          key: bazel-tutorial-cache
-      
-      - name: Prepare Bazel cache folder
-        run: |
-            mkdir -p bazel-cache
-            chmod -R 777 bazel-cache
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+          module-root: app
 
-      - name: Bazel build
+      - name: Run Bazel build and tests
+        working-directory: app
         run: |
-            docker run --rm \
-              -v "${{ github.workspace }}/app":/app \
-              -w /app \
-              gcr.io/bazel-public/bazel:7.4.0 \
-              build //:BazelProject --java_language_version=8 --disk_cache=testcache
-        
-      - name: Bazel test 1
-        run: |
-            docker run --rm \
-              -v "${{ github.workspace }}/app":/app \
-              -w /app \
-              gcr.io/bazel-public/bazel:7.4.0 \
-              test //:BazelProjectTest1 --java_language_version=8 --disk_cache=testcache
-        
-      - name: Bazel test 2
-        run: |
-            docker run --rm \
-              -v "${{ github.workspace }}/app":/app \
-              -w /app \
-              gcr.io/bazel-public/bazel:7.4.0 \
-              test //:BazelProjectTest2 --java_language_version=8 --disk_cache=testcache
+          bazel build //:BazelProject --java_language_version=8
+          bazel test //:BazelProjectTest1 --java_language_version=8
+          bazel test //:BazelProjectTest2 --java_language_version=8
