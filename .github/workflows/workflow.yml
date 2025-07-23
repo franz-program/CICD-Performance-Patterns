@@ -30,17 +30,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Bazel with caching
-        uses: bazel-contrib/setup-bazel@0.15.0
+      - name: Setup bazel
+        uses: jwlawson/actions-setup-bazel@v2
         with:
-          bazelisk-cache: true
-          disk-cache: ${{ github.workflow }}
-          repository-cache: true
-          module-root: app
+          bazel-version: '7.4.0'
 
       - name: Run Bazel build and tests
         working-directory: app
         run: |
-          bazel build //:BazelProject --java_language_version=8 --incompatible_enable_bzlmod=false
-          bazel test //:BazelProjectTest1 --java_language_version=8 --incompatible_enable_bzlmod=false
-          bazel test //:BazelProjectTest2 --java_language_version=8 --incompatible_enable_bzlmod=false
+          bazel build //:BazelProject --java_language_version=8 
+          bazel test //:BazelProjectTest1 --java_language_version=8 
+          bazel test //:BazelProjectTest2 --java_language_version=8
