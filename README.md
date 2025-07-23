@@ -8,7 +8,7 @@ The application is tested using the real service and using a mockup of the servi
 To see the effects of mockups on performance, the tests loop for 200 times.
 
 
-The [job without mockups](https://github.com/franz-program/CICD-Performance-Patterns/actions/runs/16464880153/job/46539727851) took 49 seconds.
+The [job without mockups](https://github.com/franz-program/CICD-Performance-Patterns/actions/runs/16464880153/job/46539727851) took 33 seconds.
 
 The [job with mockups](https://github.com/franz-program/CICD-Performance-Patterns/actions/runs/16464880153/job/46539727879) took 29 seconds.
 
