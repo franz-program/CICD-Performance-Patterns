@@ -25,7 +25,7 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Clone GuillaumeFalourd/poc-github-actions repository
+      - name: Clone repository
         uses: GuillaumeFalourd/clone-github-repo-action@v2.3
         with:
           repository: 'CICD-Performance-Patterns'
@@ -34,7 +34,7 @@ jobs:
           depth: 2
     
       - name: Detect changes in app/src
-        working-directory: ./poc-github-actions
+        working-directory: ./CICD-Performance-Patterns
         id: diff
         run: |
             echo "Comparing commits:"
