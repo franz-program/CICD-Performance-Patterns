@@ -7,16 +7,12 @@ on:
   pull_request:
 
 jobs:
-  check-conditions:
+  skip-check:
     runs-on: ubuntu-latest
     outputs:
-      skip-pipeline: ${{ steps.check.outputs.skip }}
-      src-changed: ${{ steps.filter.outputs.src }}
+      skip: ${{ steps.check.outputs.skip }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check for --no-pipeline in commit message
+      - name: Check commit message for --no-pipeline
         id: check
         run: |
           if [[ "${{ github.event.head_commit.message }}" == *"--no-pipeline"* ]]; then
@@ -25,34 +21,48 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
+  build:
+    needs: skip-check
+    if: needs.skip-check.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Detect file changes
-        id: filter
+        id: changes
         uses: dorny/paths-filter@v3
         with:
           filters: |
             src:
               - 'app/src/**/*'
 
-  build:
-    needs: check-conditions
-    if: needs.check-conditions.outputs.skip-pipeline == 'false' && needs.check-conditions.outputs.src-changed == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Building project..."
-
+      - name: Build project
+        if: steps.changes.outputs.src == 'true'
+        run: echo "Building project..."
 
   test:
-    needs: check-conditions
-    if: needs.check-conditions.outputs.skip-pipeline == 'false' && (
-          needs.check-conditions.outputs.src-changed == 'true' || github.ref == 'refs/heads/conditional-triggering-main'
-        )
+    needs: skip-check
+    if: needs.skip-check.outputs.skip == 'false'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Running tests..."
+      - uses: actions/checkout@v4
+
+      - name: Detect file changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            src:
+              - 'app/src/**/*'
+
+      - name: Run tests
+        # OR condition: changes OR correct branch
+        if: steps.changes.outputs.src == 'true' || github.ref == 'refs/heads/fake-branch'
+        run: echo "Running tests..."
 
   deploy:
-    needs: [check-conditions, test]
-    if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/conditional-triggering-main'
+    needs: [skip-check, test]
+    if: needs.skip-check.outputs.skip == 'false' && github.ref == 'refs/heads/fake-branch'
     runs-on: ubuntu-latest
     steps:
       - run: echo "Deploying..."
