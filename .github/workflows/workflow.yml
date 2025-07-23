@@ -1,0 +1,58 @@
+name: Gradle Parallel Test Jobs
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Check for --no-test in commit message
+        id: check
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"--no-test"* ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+  test-without-mockups:
+    needs: check-commit
+    if: needs.check-commit.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+    container:
+      image: gradle:8.12.0-jdk21-alpine
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build without tests
+        run: gradle build -x test
+
+      - name: Run TestWithRealService
+        run: gradle test --tests "test.TestWithRealService"
+
+  test-with-mockups:
+    needs: check-commit
+    if: needs.check-commit.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+    container:
+      image: gradle:8.12.0-jdk21-alpine
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build without tests
+        run: gradle build -x test
+
+      - name: Run TestWithMockups
+        run: gradle test --tests "test.TestWithMockups"
