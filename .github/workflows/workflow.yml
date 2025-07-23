@@ -41,7 +41,7 @@ jobs:
               -v "${{ github.workspace }}/app":/app \
               -w /app \
               gcr.io/bazel-public/bazel:7.4.0 \
-              bazel build //:BazelProject --java_language_version=8 --disk_cache=testcache
+              build //:BazelProject --java_language_version=8 --disk_cache=testcache
         
       - name: Bazel test 1
         run: |
@@ -49,7 +49,7 @@ jobs:
               -v "${{ github.workspace }}/app":/app \
               -w /app \
               gcr.io/bazel-public/bazel:7.4.0 \
-              bazel test //:BazelProjectTest1 --java_language_version=8 --disk_cache=testcache
+              test //:BazelProjectTest1 --java_language_version=8 --disk_cache=testcache
         
       - name: Bazel test 2
         run: |
@@ -57,4 +57,4 @@ jobs:
               -v "${{ github.workspace }}/app":/app \
               -w /app \
               gcr.io/bazel-public/bazel:7.4.0 \
-              bazel test //:BazelProjectTest2 --java_language_version=8 --disk_cache=testcache
+              test //:BazelProjectTest2 --java_language_version=8 --disk_cache=testcache
