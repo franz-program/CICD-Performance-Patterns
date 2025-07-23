@@ -35,6 +35,13 @@ jobs:
         with:
           bazel-version: '7.4.0'
 
+      - name: Restore Bazel disk cache
+        uses: actions/cache@v4
+        with:
+          path: app/testcache
+          key: bazel-test-cache
+          
+
       - name: Run Bazel build and tests
         working-directory: app
         run: |
