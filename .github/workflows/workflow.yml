@@ -45,6 +45,6 @@ jobs:
       - name: Run Bazel build and tests
         working-directory: app
         run: |
-          bazel build //:BazelProject --java_language_version=8 
-          bazel test //:BazelProjectTest1 --java_language_version=8 
-          bazel test //:BazelProjectTest2 --java_language_version=8
+          bazel build //:BazelProject --java_language_version=8 --disk_cache=testcache
+          bazel test //:BazelProjectTest1 --java_language_version=8 --disk_cache=testcache
+          bazel test //:BazelProjectTest2 --java_language_version=8 --disk_cache=testcache
