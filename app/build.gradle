@@ -1,5 +1,22 @@
 plugins {
-    id 'java'
+    id 'com.gradle.enterprise'                                     // Gradle Enterprise for caching and analytics
+    id 'com.github.ben-manes.versions'                             // Dependency updates
+    id 'org.jetbrains.kotlin.jvm'                                  // Kotlin JVM support
+    id 'org.jetbrains.kotlin.kapt'                                 // Kotlin Annotation Processing
+    id 'org.jetbrains.kotlin.plugin.allopen'                       // Kotlin AllOpen (e.g., for Spring)
+    id 'org.jetbrains.kotlin.plugin.spring'                        // Spring support in Kotlin
+    id 'io.spring.dependency-management'                           // Spring's dependency management plugin
+    id 'org.springframework.boot'                                   // Spring Boot plugin
+    id 'io.freefair.lombok'                                        // Lombok integration
+    id 'com.diffplug.spotless'                                     // Code formatting
+    id 'com.github.spotbugs'                                       // SpotBugs static analysis
+    id 'net.ltgt.errorprone'                                       // ErrorProne checks
+    id 'com.google.protobuf'                                       // Protocol Buffers support
+    id 'org.jlleitschuh.gradle.ktlint'                             // Kotlin linter
+    id 'me.champeau.jmh'                                           // JMH benchmarking
+    id 'java'                                                      // Standard Java plugin
+    id 'application'                                               // Standard application plugin
+
 }
 
 group = 'org.example'
