@@ -1,16 +1,11 @@
-# Repository for the work "Performance Patterns for CI/CD Pipelines"
-## Authors: Francesco Urdih, Theodoros Theodoropoulos, and Uwe Zdun
+# CD performance patterns (branch Caching)
 
-### Abstract
+This branch tests the effects on caching the build artifacts.
 
-Continuous Integration and Continuous Deployment (CI/CD) pipelines constitute an important aspect of modern software development, automating workflows to enable frequent integration, rapid feedback, and reliable software releases. The performance of these pipelines directly influences the speed and efficiency of the software delivery lifecycle, making optimization essential as development projects need to scale. This paper explores 9 foundational performance patterns that address key forces such as pipeline speed, resource efficiency, and scalability. The patterns deal with, among other things, reducing inefficiencies when running the pipeline and increasing the usage of available resources. One common strategy employed in the patterns to address inefficiency is reducing the number of tasks executed in the pipeline. Our pattern mining study draws upon a dataset from an empirical analysis of 31 grey literature sources, exploring practitioner perspectives on enhancing CI/CD pipeline performance. To find known uses of the presented patterns, we analyze multiple mature GitLab and GitHub repositories in depth. This catalog can be employed by practitioners and researchers for the improvement of existing CI/CD systems or when designing new ones.
+The application contains 11 popular java libraries to download and compile.
 
-### Repository
+The [build executed without cache](https://gitlab.com/francesco.urdih/cicd-performance-patterns/-/jobs/10769183090) on a GitLab runner took 51 seconds.
 
-In this repository, the GitHub-related code snippets from the paper are tested. 
-Each pattern is tested on its own branch.
+The [build executed with cache](https://gitlab.com/francesco.urdih/cicd-performance-patterns/-/jobs/10769251569) on a GitLab runner took 48 seconds.
 
-### Links
-
-- [Here](https://zenodo.org/records/14747352) you can find the replication package of the study.
-- [Here](https://gitlab.com/francesco.urdih/cicd-performance-patterns) you can find the equivalent repository on GitLab, with GitLab-related snippets.
+Most of the jobs' time is spent configuring the GitLab runner (ca. 40 seconds), therefore the time is only partially reduced with cache.
