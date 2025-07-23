@@ -38,10 +38,9 @@ jobs:
     if: needs.check-conditions.outputs.skip-pipeline == 'false' && needs.check-conditions.outputs.src-changed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - run: echo "Building project..."
 
-      
+
   test:
     needs: check-conditions
     if: needs.check-conditions.outputs.skip-pipeline == 'false' && (
@@ -49,7 +48,6 @@ jobs:
         )
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - run: echo "Running tests..."
 
   deploy:
@@ -57,5 +55,4 @@ jobs:
     if: needs.check-conditions.outputs.skip-pipeline == 'false' && github.ref == 'refs/heads/conditional-triggering-main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - run: echo "Deploying..."
